@@ -1,0 +1,67 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build SNA",
+            "type": "shell",
+            "command": "sjasmplus.exe",
+            "args": [
+                "--fullpath",
+                "--lst=build/replaceme.lst",
+                "--sld=build/replaceme.sld.txt",
+                "--lstlab",
+                "--sym=build/replaceme.sym",
+                "src/main.z80"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*)\\((\\d+)\\):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            },
+            "dependsOn": [
+               // "Build tests"
+            ]
+        },
+        {
+            "label": "Build tests",
+            "type": "shell",
+            "command": "sjasmplus",
+            "args": [
+                "--lst=build/unittests.lst",
+                "--fullpath",
+                "--sld=build/unittests.sld.txt",
+                "--lstlab",
+                "--sym=build/unittests.sym",
+                "tests/testmain.z80"
+            ],
+            "problemMatcher": {
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*)\\((\\d+)\\):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            },
+            "group": "build"
+        }
+    ]
+}

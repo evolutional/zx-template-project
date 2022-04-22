@@ -1,0 +1,17 @@
+
+
+; Inputs:
+;   A   bank
+mem_page:
+    push bc
+    and $07 ; remove any junk
+    ld c,a
+    ld a,($5b5c)      ; reg values of ULA_PAGING
+    and %11111000     ; clear mem paging
+    or c
+
+    ld bc,ULA_PAGING
+    out (c),a
+    ld ($5b5c),a    ; save the paging info again
+    pop bc
+    ret

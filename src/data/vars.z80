@@ -1,0 +1,18 @@
+; VOLATILE DATA HERE
+; The intention is that this data is not compiled into the TAP/DSK file
+; but is held at a well-known location that the game can reference
+; the implication here is that the game will need to initialize this and not rely on
+; defaults
+
+; input.z80
+
+input_state:
+    S_INPUT_STATE
+input_state_prev:
+    S_INPUT_STATE
+
+update_joystick_func:
+	.dw input_update_kempston
+
+scr_vbl:
+    .db 0

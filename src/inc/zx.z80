@@ -1,0 +1,52 @@
+
+SCR_INK_BLACK		.equ $00
+SCR_INK_BLUE		.equ $01
+SCR_INK_RED			.equ $02
+SCR_INK_MAGENTA		.equ $03
+SCR_INK_GREEN		.equ $04
+SCR_INK_CYAN		.equ $05
+SCR_INK_YELLOW		.equ $06
+SCR_INK_WHITE		.equ $07
+
+SCR_PAPER_BLACK		.equ $00 << 3
+SCR_PAPER_BLUE		.equ $01 << 3
+SCR_PAPER_RED		.equ $02 << 3
+SCR_PAPER_MAGENTA	.equ $03 << 3
+SCR_PAPER_GREEN		.equ $04 << 3
+SCR_PAPER_CYAN		.equ $05 << 3
+SCR_PAPER_YELLOW	.equ $06 << 3
+SCR_PAPER_WHITE		.equ $07 << 3
+
+SCR_ATTR_BRIGHT		.equ $01 << 6
+SCR_ATTR_FLASH		.equ $01 << 7
+
+SCR_COL_ROWLEN		.equ 32	; 32 columns across the screen
+SCR_ROW_COUNT		.equ 24	; 24 rows in the whole screen
+SCR_HEIGHT			.equ 192
+SCR_WIDTH			.equ 256
+
+SCR_MEM_START		.equ $4000
+SCR_MEM_LEN			.equ $1800
+SCR_MEM_SEG_LEN		.equ $800
+SCR_MEM_SEG1_START  .equ SCR_MEM_START
+SCR_MEM_SEG2_START	.equ SCR_MEM_SEG1_START + SCR_MEM_SEG_LEN
+SCR_MEM_SEG3_START	.equ SCR_MEM_SEG2_START + SCR_MEM_SEG_LEN
+
+SCR_MEM_ATTR_START	.equ $5800
+SCR_ATTR_MEM_LEN	.equ $0300
+
+ULA_PORT			.equ $FE
+ULA_PAGING			.equ $7FFD
+
+SCR_SET_BORDER_COLOUR MACRO c
+	ld a,c
+	out $FE,a
+ENDM
+
+ATTR_ADDR MACRO rp,y,x
+	ld rp,ATTR_MEM_START + x + (y * 32)
+ENDM
+
+ATTR_ADDR_N MACRO rp,y,x,n
+	ld rp,ATTR_MEM_START + x + n + (y * 32) 
+ENDM

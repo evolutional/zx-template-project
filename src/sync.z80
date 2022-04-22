@@ -1,0 +1,11 @@
+
+sync_wait_vbl:
+
+.loop:
+    ld a,(scr_vbl)
+    or a
+    jr z,.loop
+
+    ld a,0
+    ld (scr_vbl),a
+    ret

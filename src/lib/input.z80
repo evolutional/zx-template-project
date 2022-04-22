@@ -1,0 +1,102 @@
+;	0xfefe  SHIFT, Z, X, C, V            0xeffe  0, 9, 8, 7, 6
+;	0xfdfe  A, S, D, F, G                0xdffe  P, O, I, U, Y
+;	0xfbfe  Q, W, E, R, T                0xbffe  ENTER, L, K, J, H
+;	0xf7fe  1, 2, 3, 4, 5                0x7ffe  SPACE, SYM SHFT, M, N, B
+
+KEYBOARD_FE:		.equ $FE
+KEYBOARD_EF:		.equ $EF
+KEYBOARD_FD:		.equ $FD
+KEYBOARD_DF:		.equ $DF
+KEYBOARD_FB:		.equ $FB
+KEYBOARD_BF:		.equ $BF
+KEYBOARD_F7:		.equ $F7
+KEYBOARD_7F:		.equ $7F
+
+    STRUCT S_INPUT_STATE
+joystick    byte
+    ENDS
+
+input_init:
+	ld de,input_update_keys
+	ld hl,update_joystick_func
+	ld (hl),e
+	inc hl
+	ld (hl),d
+
+	ld hl,(update_joystick_func)
+
+	ld a,l
+	ld (input_update.sm_joy+1),a
+	ld a,h
+	ld (input_update.sm_joy+2),a
+
+	ld a,$FF
+	ld (input_state_prev + S_INPUT_STATE.joystick),a
+	ld (input_state + S_INPUT_STATE.joystick),a
+
+	ret
+
+input_update:
+	ld hl,(.sm_joy+1)
+.sm_joy:
+	call $0000	; self modifying code, this needs to point at the joystick update funs
+	ret
+
+input_update_kempston:
+	; move the last state into the correct variable
+	ld a,(input_state + S_INPUT_STATE.joystick)
+	ld (input_state_prev + S_INPUT_STATE.joystick),a
+
+	ld bc,31		; Kempston
+	in a,(c)		; read input.
+	ld (hl),a		; store in joystick_state
+	ret
+
+
+input_update_keys:
+	; move the last state into the correct variable
+	ld a,(input_state + S_INPUT_STATE.joystick)
+	ld (input_state_prev + S_INPUT_STATE.joystick),a
+
+	ld hl,input_map_qaop
+	call Read_Controls
+
+	ld (input_state),a		; store in joystick_state
+	ret
+
+; Gets the joystick state, only setting bits if they're different
+; from the previous check
+; Inputs:
+; Outputs:
+;	A:	State
+get_joystick_delta_state:		; calculates the difference between current state and last state
+	ld a,(input_state_prev)	; get last state
+	ld b,a
+	ld a,(input_state)		; get this state
+	ld c,a
+	xor b					; xor to get the change
+	and c					; remove last
+	ret
+
+; Kempston is:
+; ---FUDLR
+input_map_qaop:
+	.db 0x7F, %00000001		; Space (Fire)
+	.db 0xFB, %00000001		; Q (Up)
+	.db 0xFD, %00000001		; A (Down)
+	.db 0xDF, %00000010		; O (Left)
+	.db 0xDF, %00000001		; P (Right)
+
+input_map_sinclair:
+	.db 0xEF, %00000001		; 0 (Fire)
+	.db 0xEF, %00000010		; 9 (Up)
+	.db 0xEF, %00000100		; 8 (Down)
+	.db 0xEF, %00010000		; 6 (Left)
+	.db 0xEF, %00001000		; 7 (Right)
+
+input_map_cursor:
+	.db 0xEF, %00000001		; 0 (Fire)
+	.db 0xEF, %00001000		; 7 (Up)
+	.db 0xEF, %00010000		; 6 (Down)
+	.db 0xF7, %00010000		; 5 (Left)
+	.db 0xEF, %00000100		; 8 (Right)

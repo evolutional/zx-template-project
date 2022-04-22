@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "dezog",
+            "request": "launch",
+            "rootFolder": "${workspaceFolder}",
+            "name": "CSpect",
+            "remoteType": "cspect",
+            "cspect": {
+                "port": 11000
+            },
+            "commandsAfterLaunch": [
+                "-rmv"
+            ]
+        },
+
+        {
+            "type": "dezog",
+            "request": "launch",
+            "name": "Unit Tests",
+            "unitTests": true,
+            "remoteType": "zsim",
+            "sjasmplus": [
+                {
+                    "path": "build/unittests.sld.txt",
+                }
+            ],
+            "rootFolder": "${workspaceFolder}",
+            "load": "build/unittests.sna",
+            "presentation": {
+                "hidden": true
+            },
+            "zsim": {
+                "Z80N": false,
+                "visualMemory": true,
+                "memoryModel": "RAM"
+            },
+            "commandsAfterLaunch": [
+                "-logpoint enable",
+                "-assertion enable",
+                "-wpmem enable"
+            ],
+            "startAutomatically": true
+        },
+    ]
+}

@@ -1,0 +1,47 @@
+
+irq_table   .equ $8000
+irq_jp      .equ $8181
+
+irq_install:
+    ld hl,irq_jp
+    ld de,irq_table
+    ld a,d
+    ld i,a
+    ld a,l
+    ; init irq vector table
+.loop:
+    ld (de),a
+    inc e
+    jr nz,.loop
+    inc d
+    ld (de),a
+
+    ; install jp irq_handler
+    ld de,irq_handler
+
+    ld (hl),0xC3  ; jp
+    inc hl
+    ld (hl),e
+    inc hl
+    ld (hl),d
+    im 2
+    ret
+
+irq_handler:
+    di
+
+    push af
+    push bc
+    push hl
+
+    ld a,1
+    ld (scr_vbl),a
+
+    pop hl
+    pop bc
+    pop af
+    ei
+    reti
+
+
+

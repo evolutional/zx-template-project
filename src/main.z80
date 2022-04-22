@@ -1,0 +1,36 @@
+    DEVICE ZXSPECTRUM48    ; or ZXSPECTRUM128
+
+    INCLUDE "src/inc/zx.z80"
+
+GAME_STACK_TOP      .equ $8181
+GAME_CODE_START     .equ $8184
+
+    ORG GAME_CODE_START
+code_start:
+
+    ld sp,GAME_STACK_TOP
+    jp game_main
+
+    INCLUDE "src/lib/input.z80"
+    INCLUDE "src/lib/keyboard.z80"
+    INCLUDE "src/lib/mem.z80"
+    INCLUDE "src/lib/screen.z80"
+
+    INCLUDE "src/game.z80"
+    INCLUDE "src/irq.z80"
+    INCLUDE "src/sync.z80"
+
+code_length     .equ $-code_start+1
+
+ro_data_start:
+    INCLUDE "src/data/readonly.z80"
+ro_data_length .equ $-ro_data_start+1
+
+vars_data_start:
+    INCLUDE "src/data/vars.z80"
+vars_data_length .equ $-vars_data_start+1
+
+sna_length      equ $-code_start
+
+    CSPECTMAP "build/replaceme.map"
+    SAVESNA "build/replaceme.sna", code_start

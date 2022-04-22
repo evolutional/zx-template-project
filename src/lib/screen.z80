@@ -1,0 +1,113 @@
+
+scr_cls_pixels:
+	push hl
+	push de
+	push bc
+	ld hl,SCR_MEM_START
+	ld de,SCR_MEM_START + 1
+	ld bc,SCR_MEM_LEN - 1
+	ld (hl),$00
+	ldir
+	pop bc
+	pop de
+	pop hl
+	ret
+
+; Inputs:
+;	A	Clear colour
+scr_cls_attrs:
+	push hl
+	push de
+	push bc
+	ld hl,SCR_MEM_ATTR_START
+	ld de,SCR_MEM_ATTR_START + 1
+	ld bc,SCR_ATTR_MEM_LEN - 1
+	ld (hl),a
+	ldir
+	pop bc
+	pop de
+	pop hl
+	ret
+
+; Inputs:
+; 	BC	Y,X pixel pos
+; Outputs:
+;	HL	address
+scr_pixel_addr:
+	ld a,b		; we're calculating Y2,Y2,Y0 - the line pos
+	and %00000111
+	or %01000000	; base addr is $4000
+	;or %11100000	; base addr is $E000
+	ld h,a
+	ld a,b		; calc Y7,Y6
+	rra		; shift into the correct position
+	rra
+	rra
+	and %00011000	; mask off other junk
+	or h		; combine with the Y2Y1Y0 bits
+	ld h,a
+	ld a,b		; calc Y5,Y4,Y3
+	rla
+	rla
+	and %11100000
+	ld l,a
+	ld a,c		; calc X4X3X2X1X0
+	rra
+	rra
+	rra
+	and %00011111
+	or l
+	ld l,a
+	ld a,c
+	and 7
+	ret
+
+; Moves the address in HL down one pixel line 
+scr_inc_pixel_addr:
+	inc h
+	ld a,h
+	and 7		; are we moving down a char boundary?
+	ret nz		; nope, skip
+	ld a,l
+	add a,32	; move down a char line
+	ld l,a
+	ret c		; have we moved to the next third?
+	ld a,h		
+	sub 8		; next third
+	ld h,a
+	ret
+
+; Inputs:
+; 	BC	Y,X pixel pos
+; Outputs:
+;	HL	address
+scr_attr_addr:
+	ld a,b	; calc row
+	or a
+	rra
+	rra
+	rra
+	and $1F
+
+	ld h,0
+	ld l,a
+	add hl,hl
+	add hl,hl
+	add hl,hl
+	add hl,hl
+	add hl,hl	; mul 32
+
+	ld a,$58	; turn to addr
+	or h
+	ld h,a
+
+	ld a,c		; calc col
+	or a
+	rra
+	rra
+	rra
+	and $1F
+	add a,l
+	ld l,a		; add col
+
+	ret

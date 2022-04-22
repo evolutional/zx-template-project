@@ -1,0 +1,43 @@
+; main entry point for the game
+game_main:
+    di
+    call irq_install
+    call game_init
+    ei
+    
+    jp main_loop
+
+
+game_init:
+    ; init screen vars
+    ld a,0
+    ld (scr_vbl),a
+
+    ; clear screen & set border
+    ld a,SCR_INK_BLACK : out (ULA_PORT),a
+    ld a,SCR_INK_WHITE|SCR_PAPER_BLACK
+    call scr_cls_attrs
+    call scr_cls_pixels
+
+    ; init input
+    call input_init
+    ;
+    ret
+
+main_loop:
+    call sync_wait_vbl
+
+    ; debug border color start frame
+    ld a,SCR_INK_BLACK : out (ULA_PORT),a
+
+    ld a,SCR_INK_WHITE : out (ULA_PORT),a
+    
+    ; input and game logic
+    call input_update
+
+    ; insert your draw code
+    ld a,SCR_INK_RED : out (ULA_PORT),a
+
+    ; debug border end frame
+    ld a,SCR_INK_BLACK : out (ULA_PORT),a
+    jr main_loop
